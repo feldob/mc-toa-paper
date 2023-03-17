@@ -1,4 +1,4 @@
-using RCall, DataFrames, LinearAlgebra, Serialization
+using DataFrames, LinearAlgebra, Serialization
 
 include("../normalized_stats.jl")
 include("app_hvi.jl")
