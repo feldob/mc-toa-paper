@@ -81,8 +81,8 @@ function set_phase1_fitness(s::TspSolver, indiv)
     fitness(s, indiv)
     options(s)[:OptSize] = sum(indiv)
 
-    manual_cap = round(options(s)[:TestSetProportion] * numtests(problem(s)), RoundUp)
-    options(s)[:Cap] = max(manual_cap, options(s)[:OptSize])
+    manual_cap = round(options(s)[:λᵤ] * numtests(problem(s)), RoundUp)
+    options(s)[:Cap] = max(options(s)[:OptSize] * options(s)[:ζ], manual_cap)
 
     s.stage = phase2 # upgrade search stage
 end
@@ -173,7 +173,7 @@ function step!(s::TspSolver, ::Type{Val{phase3}})
 
     relaxed = options(s)[:Relaxed]
     rand_cap = rand(options(s)[:OptSize]:options(s)[:Cap])
-    tsp = create_tsp_second_order(case(s), rand_cap, relaxed, options(s)[:Solver])
+    tsp = create_tsp_second_order(case(s), rand_cap, relaxed, options(s)[:MaxTime], options(s)[:Solver])
 
     foreach(f -> f(model(tsp), case(s)), constraints(s)) # activate all constraints
 

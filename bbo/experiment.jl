@@ -37,7 +37,7 @@ struct TspInstance
         TspInstance(problem, systemid, iid, scale)
     end
 
-    function TspInstance(problem::TspProblem, systemid::AbstractString, iid::Int64, scale::Real=1.0)
+    function TspInstance(problem::TspProblem, systemid::AbstractString, iid::Int64=1, scale::Real=1.0)
         new(problem, systemid, iid, scale)
     end
 end

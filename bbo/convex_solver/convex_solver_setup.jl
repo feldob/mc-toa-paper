@@ -4,7 +4,8 @@ BlackBoxOptim.add_method_to_bbo(:convex_solver, convex_solver)
 
 gurobi_setup = ParamsDict(
                      #:CallbackInterval => 2.0,
-                     :TestSetProportion => .1,
+                     :λᵤ => .1,
+                     :ζ => 1.3,
                      :ϵ => .1,
                      :Solver => Gurobi.Optimizer,
                      :Relaxed => false,

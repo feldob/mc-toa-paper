@@ -76,7 +76,7 @@ mutable struct TestSelectionProblemInstance
     model::Model
     case::AbstractCase
 
-    function TestSelectionProblemInstance(case, opt=Gurobi.Optimizer, timelimit = 60)
+    function TestSelectionProblemInstance(case, timelimit, opt=Gurobi.Optimizer)
         m = Model(opt)
         set_time_limit_tsp(m, timelimit)
         set_silent(m)
@@ -145,7 +145,7 @@ function set_time_limit_tsp(model, timelimit)
     else
         set_time_limit_sec(model, timelimit)
     end
-    "time limit set to $timelimit seconds" |> println
+    # "time limit set to $timelimit seconds" |> println
 end
 
 optimize!(tsp::TestSelectionProblemInstance) = JuMP.optimize!(model(tsp))
@@ -205,12 +205,12 @@ function solve_min_size(case::AbstractCase, options, _constraints::Vector{Functi
     relaxed = options[:Relaxed]
 
     half_of_budget = div(options[:MaxTime], 2)
-    tsp = TestSelectionProblemInstance(case, solver, half_of_budget)
+    tsp = TestSelectionProblemInstance(case, half_of_budget, solver)
     return solve_min_size(tsp, relaxed, _constraints)
 end
 
-function create_tsp_second_order(case::AbstractCase, cap::Real, relaxed::Bool, opt = Gurobi.Optimizer)
-    tsp = TestSelectionProblemInstance(case, opt)
+function create_tsp_second_order(case::AbstractCase, cap::Real, relaxed::Bool, maxTime, opt = Gurobi.Optimizer)
+    tsp = TestSelectionProblemInstance(case, maxTime, opt)
     cgts! = (tsp) -> constraint_cap_tests_suite!(tsp, cap)
 
     constraints = [ constraint_guarantee_all_functions_covered!, cgts! ]
@@ -222,7 +222,7 @@ function create_tsp_second_order(case::AbstractCase, cap::Real, relaxed::Bool, o
 end
 
 function optimize!(case::AbstractCase, cap::Real, relaxed::Bool, solver, expr_func::Function, timelimit::Real, constraint_funcs::Vector{Function}=[])
-    tsp = create_tsp_second_order(case, cap, relaxed, solver)
+    tsp = create_tsp_second_order(case, cap, relaxed, timelimit, solver)
 
     foreach(cf -> cf(model(tsp), case), constraint_funcs) # install constraints
 
@@ -233,8 +233,8 @@ function optimize!(case::AbstractCase, cap::Real, relaxed::Bool, solver, expr_fu
     return tsp
 end
 
-function solve_second(case::AbstractCase, cap::AbstractFloat, objective::Symbol, opt = Gurobi.Optimizer)
-    tsp = TestSelectionProblemInstance(case, opt)
+function solve_second(case::AbstractCase, cap::AbstractFloat, objective::Symbol, maxTime, opt = Gurobi.Optimizer)
+    tsp = TestSelectionProblemInstance(case, maxTime, opt)
     cgts! = (tsp) -> constraint_cap_tests_suite!(tsp, cap)
 
     return solve_binary!(tsp, objective, cap,
@@ -242,18 +242,18 @@ function solve_second(case::AbstractCase, cap::AbstractFloat, objective::Symbol,
                     cgts!)
 end
 
-function solve_max_exercise(case::AbstractCase, cap::AbstractFloat, opt = Gurobi.Optimizer)
-    solve_second(case::AbstractCase, cap::AbstractFloat, :maxExercise, opt)
+function solve_max_exercise(case::AbstractCase, cap::AbstractFloat, maxTime, opt = Gurobi.Optimizer)
+    solve_second(case::AbstractCase, cap::AbstractFloat, :maxExercise, maxTime, opt)
 end
 
 function solve_max_exercise(case::AbstractCase, options)
-    solve_max_exercise(case::AbstractCase, options[:Cap])
+    solve_max_exercise(case::AbstractCase, options[:Cap], options[:MaxTime])
 end
 
-function solve_max_failrates(case::AbstractCase, cap::AbstractFloat, opt = Gurobi.Optimizer)
-    solve_second(case::AbstractCase, cap::AbstractFloat, :maxFailRate, opt)
+function solve_max_failrates(case::AbstractCase, cap::AbstractFloat, maxTime, opt = Gurobi.Optimizer)
+    solve_second(case::AbstractCase, cap::AbstractFloat, :maxFailRate, maxTime, opt)
 end
 
 function solve_max_failrates(case::AbstractCase, options)
-    solve_max_failrates(case::AbstractCase, options[:Cap])
+    solve_max_failrates(case::AbstractCase, options[:Cap], options[:MaxTime])
 end

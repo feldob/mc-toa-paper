@@ -10,3 +10,7 @@ execute bash script through `./experiment_script.sh`
 In case of problems with out of memory errors, [activate swap via e.g. swap file](https://askubuntu.com/questions/33697/how-do-i-add-swap-after-system-installation) (seems easiest):
 
 Take a coffee... or two, the experiments take a couple of days to run.
+
+learning the framework:
+=======================
+an example has been added as the ´example.jl` file. The code is documentend to clarify the use and how to adjust it.
