@@ -13,4 +13,4 @@ Take a coffee... or two, the experiments take a couple of days to run.
 
 learning the framework:
 =======================
-an example has been added as the `example.jl` file (executed through `example.sh` after `install.sh`). The code is documentend to clarify the use and how to adjust it.
+an example has been added as the `example.jl` file (executed through `example_script.sh` after `install.sh`). The code is documentend to clarify the use and how to adjust it.
